@@ -11,3 +11,4 @@ The model can interpret information in diverse ways, showcasing a broad understa
 * **Handler**  
 It is equipped with the capability to handle linguistic data, suggesting proficiency in processing and managing syntactic elements efficiently.
 
+> The datasets I currently possess are insufficient, and the processing capacity is limited. Consequently, my transformer struggles to grasp the Sense + Tense concept. I believe a substantial increase in the volume of data is essential to train a model effectively, allowing it to discern patterns inherent in language grammar.
