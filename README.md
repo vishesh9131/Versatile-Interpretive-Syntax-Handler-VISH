@@ -6,8 +6,6 @@ The model is flexible and adaptable, capable of handling a wide range of tasks a
 It has the ability to understand and interpret various linguistic constructs, ensuring nuanced comprehension of language and context.
 + **Syntax** 
 The model excels at managing and manipulating the syntactic structure of language, enabling it to generate coherent and contextually appropriate outputs.
-- **Versatile** 
-The model can interpret information in diverse ways, showcasing a broad understanding of the intricacies of language and communication.
 * **Handler**  
 It is equipped with the capability to handle linguistic data, suggesting proficiency in processing and managing syntactic elements efficiently.
 
