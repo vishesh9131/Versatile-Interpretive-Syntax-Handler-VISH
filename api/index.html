@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Generation with Transformer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button, select {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Generation with Transformer</h1>
+        <input type="text" id="seedText" placeholder="Enter seed text" value="Once upon a time">
+        <input type="number" id="numWords" placeholder="Number of words to generate" value="50">
+        <input type="number" id="temperature" placeholder="Temperature" step="0.1" value="1.0">
+        <input type="number" id="topP" placeholder="Top-p (nucleus) sampling" step="0.1" value="0.9">
+        <button onclick="generateText()">Generate Text</button>
+        <p id="generatedText"></p>
+    </div>
+    <script>
+        async function generateText() {
+            const seedText = document.getElementById('seedText').value;
+            const numWords = parseInt(document.getElementById('numWords').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const topP = parseFloat(document.getElementById('topP').value);
+
+            const response = await fetch('https://vish-ih1tg4m9j-vishesh9131s-projects.vercel.app/generate_text/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ seed_text: seedText, num_words: numWords, temperature: temperature, top_p: topP })
+            });
+
+            const data = await response.json();
+            document.getElementById('generatedText').innerText = data.generated_text;
+        }
+    </script>
+</body>
+</html>
