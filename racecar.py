@@ -7,7 +7,9 @@ import random
 import re
 import os
 import json
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Set device to CPU explicitly
+device = torch.device("cpu")
 
 class TransformerEncoder(nn.Module):
     def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1):
@@ -46,7 +48,7 @@ def build_model(vocab_size, embedding_dim, max_length):
     class TransformerModel(nn.Module):
         def __init__(self, vocab_size, embedding_dim, max_length):
             super(TransformerModel, self).__init__()
-            self.embedding = nn.Embedding(vocab_size, embedding_dim)
+            self.embedding = nn.Embedding(vocab_size, embedding_dim, max_length)
             self.transformer_encoder1 = TransformerEncoder(embed_dim=embedding_dim, num_heads=8, ff_dim=512)
             self.transformer_encoder2 = TransformerEncoder(embed_dim=embedding_dim, num_heads=8, ff_dim=512)
             self.global_avg_pool = nn.AdaptiveAvgPool1d(1)
@@ -152,46 +154,6 @@ def generate_text(model, tokenizer, seed_text, max_length, num_words, device, te
 
     return generated_text
 
-def train_model(model, train_loader, criterion, optimizer, num_epochs, model_path):
-    for epoch in range(num_epochs):
-        model.train()
-        for sequences, labels in train_loader:
-            sequences, labels = sequences.to(device), labels.to(device)
-            optimizer.zero_grad()
-            outputs = model(sequences)
-            # Reshape outputs and labels to match the expected dimensions
-            outputs = outputs.view(-1, outputs.size(-1))  # (batch_size * seq_len, vocab_size)
-            labels = labels.view(-1)  # (batch_size * seq_len)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-        print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
-
-    # Save the model
-    torch.save(model.state_dict(), model_path)
-    print("Model saved to disk.")
-
-def evaluate_model(model, test_loader, criterion, device):
-    model.eval()
-    test_loss = 0
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for sequences, labels in test_loader:
-            sequences, labels = sequences.to(device), labels.to(device)
-            outputs = model(sequences)
-            # Reshape outputs and labels to match the expected dimensions
-            outputs = outputs.view(-1, outputs.size(-1))  # (batch_size * seq_len, vocab_size)
-            labels = labels.view(-1)  # (batch_size * seq_len)
-            test_loss += criterion(outputs, labels).item()
-            pred = outputs.argmax(dim=1)
-            correct += pred.eq(labels).sum().item()
-            total += labels.size(0)
-
-    test_loss /= total
-    test_accuracy = correct / total
-    print(f'Test Loss: {test_loss}, Test Accuracy: {test_accuracy}')
-
 def main():
     filepath = 'data_1.txt'
     text = load_data(filepath)
@@ -229,29 +191,64 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = build_model(vocab_size, embedding_dim, max_length).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    num_epochs = 5
-    model_path = 'VISH.pth'
+    num_epochs = 20  # Increase the number of epochs
+    model_path = 'compute.pth'
     if os.path.exists(model_path):
-        # Load the model if it exists
-        model.load_state_dict(torch.load(model_path))
-        model.eval()
-        print("Model loaded from disk.")
+        # Load the model if it exists and the vocab size matches
+        try:
+            model.load_state_dict(torch.load(model_path))
+            model.eval()
+            print("Model loaded from disk.")
+        except RuntimeError as e:
+            print(f"Error loading model: {e}")
+            print("Retraining the model due to vocabulary size mismatch.")
+            train_model(model, train_loader, criterion, optimizer, num_epochs, model_path)
     else:
         # Train the model if it doesn't exist
         train_model(model, train_loader, criterion, optimizer, num_epochs, model_path)
 
-    model.eval()
     evaluate_model(model, test_loader, criterion, device)
 
     seed_text = "Once upon a time"
     num_words = 100
     generated_text = generate_text(model, tokenizer, seed_text, max_length, num_words, device)
     print(generated_text)
+
+def train_model(model, train_loader, criterion, optimizer, num_epochs, model_path):
+    for epoch in range(num_epochs):
+        model.train()
+        for sequences, labels in train_loader:
+            sequences, labels = sequences.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(sequences)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+        print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
+
+    # Save the model
+    torch.save(model.state_dict(), model_path)
+    print("Model saved to disk.")
+
+def evaluate_model(model, test_loader, criterion, device):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    with torch.no_grad():
+        for sequences, labels in test_loader:
+            sequences, labels = sequences.to(device), labels.to(device)
+            outputs = model(sequences)
+            test_loss += criterion(outputs, labels).item()
+            pred = outputs.argmax(dim=1, keepdim=True)
+            correct += pred.eq(labels.view_as(pred)).sum().item()
+
+    test_loss /= len(test_loader.dataset)
+    test_accuracy = correct / len(test_loader.dataset)
+    print(f'Test Loss: {test_loss}, Test Accuracy: {test_accuracy}')
 
 if __name__ == "__main__":
     main()

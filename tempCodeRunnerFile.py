@@ -235,7 +235,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     num_epochs = 5
-    model_path = 'VISH.pth'
+    model_path = 'transformer_model.pth'
     if os.path.exists(model_path):
         # Load the model if it exists
         model.load_state_dict(torch.load(model_path))
