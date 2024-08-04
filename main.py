@@ -248,7 +248,7 @@ def main():
     model.eval()
     evaluate_model(model, test_loader, criterion, device)
 
-    seed_text = "Once upon a time"
+    seed_text = "Vishesh will"
     num_words = 100
     generated_text = generate_text(model, tokenizer, seed_text, max_length, num_words, device)
     print(generated_text)

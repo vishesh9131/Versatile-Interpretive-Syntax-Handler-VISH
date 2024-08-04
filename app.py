@@ -185,7 +185,7 @@ def generate_text(model, tokenizer, seed_text, max_length, num_words, device, te
             """
         )
 
-        text_placeholder.markdown(f"<p style='font-size:12px;'>{generated_text}</p>", unsafe_allow_html=True)
+        text_placeholder.markdown(f"<p style='font-size:8px;'>{generated_text}</p>", unsafe_allow_html=True)
         time.sleep(0.001) 
 
     return generated_text, first_token_time, elapsed_time, tokens_per_sec
@@ -291,7 +291,7 @@ def main():
 
     evaluate_model(model, test_loader, criterion, device)
 
-    seed_text = st.text_input("Enter the seed text:", "Once upon a time")
+    seed_text = st.text_input("Enter the seed text:", "Vishesh will always")
     num_words = st.number_input("Enter the number of words to generate:", min_value=1, value=100, step=100)
     if st.button("Generate Text"):
         generated_text, first_token_time, elapsed_time, tokens_per_sec = generate_text(model, tokenizer, seed_text, max_length, num_words, device)
