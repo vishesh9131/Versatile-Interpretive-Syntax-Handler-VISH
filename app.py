@@ -125,21 +125,16 @@ def pad_sequences(sequences, maxlen, padding='post'):
             elif padding == 'pre':
                 padded_sequences[i, -len(seq):] = seq
     return padded_sequences
-elapsed_time=0
-metrics_placeholder = st.empty()
-if elapsed_time!=0:
-        flag=True
-        metrics_placeholder.metric("SEC", f"{elapsed_time:.2f} SEC")
-else :
-    flag = False
+
 # Define function to generate text with animation and metrics
 def generate_text(model, tokenizer, seed_text, max_length, num_words, device, temperature=1.0, top_p=0.9):
     model.eval()
     seed_sequence = tokenizer.texts_to_sequences([seed_text])[0]
     generated_text = seed_text
 
-    text_placeholder = st.empty()
+    # Create placeholders for the warning box and generated text
     metrics_placeholder = st.empty()
+    text_placeholder = st.empty()
 
     start_time = time.time()
     first_token_time = None
@@ -180,18 +175,20 @@ def generate_text(model, tokenizer, seed_text, max_length, num_words, device, te
         # Update metrics
         elapsed_time = time.time() - start_time
         tokens_per_sec = (i + 1) / elapsed_time
-        c1,c2,c3=st.columns(3)
-        with c1:
-            metrics_placeholder.metric("SEC TO FIRST TOKEN", f"{first_token_time:.2f} SEC")
-        with c2:
-            metrics_placeholder.metric("SEC", f"{elapsed_time:.2f} SEC")
-        with c3:
-            metrics_placeholder.metric("TOKENS/SEC", f"{tokens_per_sec:.2f}")
 
-        text_placeholder.text_area("Generated Text", generated_text, height=200)
+        # Update the warning box with metrics
+        metrics_placeholder.success(
+            f"""
+            **SEC TO FIRST TOKEN:** {first_token_time:.2f} SEC  
+            **SEC:** {elapsed_time:.2f} SEC  
+            **TOKENS/SEC:** {tokens_per_sec:.2f}
+            """
+        )
+
+        text_placeholder.markdown(f"<p style='font-size:12px;'>{generated_text}</p>", unsafe_allow_html=True)
         time.sleep(0.001) 
 
-    return generated_text
+    return generated_text, first_token_time, elapsed_time, tokens_per_sec
 
 # Define function to train model
 def train_model(model, train_loader, criterion, optimizer, num_epochs, model_path):
@@ -229,21 +226,8 @@ def evaluate_model(model, test_loader, criterion, device):
 
 # Streamlit app
 def main():
-
-    st.title("VISH gpt ")
-    # st.write(var)
-    # Create columns for the title and metrics
-    # col1, col2, col3, col4 = st.columns(4)
-    # with col1:
-    #     st.title("VISH gptcc")
-    # with col2:
-    #     sec_to_first_token_placeholder = st.empty()
-    # with col3:
-    #     tokens_per_sec_placeholder = st.empty()
-    # with col4:
-    #     tokens_placeholder = st.empty()
-    #     sec_placeholder = st.empty()
-
+    st.title("VISH gpt")
+    st.info("\"This is currently in the testing phase, but it’s already live and accessible on Streamlit Cloud.\" -vishesh")
     # Hardcoded values
     filepath = 'data_1.txt'
     max_length = 100
@@ -308,9 +292,10 @@ def main():
     evaluate_model(model, test_loader, criterion, device)
 
     seed_text = st.text_input("Enter the seed text:", "Once upon a time")
-    num_words = st.number_input("Enter the number of words to generate:", min_value=1, value=100,step=100)
+    num_words = st.number_input("Enter the number of words to generate:", min_value=1, value=100, step=100)
     if st.button("Generate Text"):
-        generate_text(model, tokenizer, seed_text, max_length, num_words, device)
+        generated_text, first_token_time, elapsed_time, tokens_per_sec = generate_text(model, tokenizer, seed_text, max_length, num_words, device)
+
 
 if __name__ == "__main__":
     main()
