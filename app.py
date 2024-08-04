@@ -185,7 +185,11 @@ def generate_text(model, tokenizer, seed_text, max_length, num_words, device, te
             """
         )
 
-        text_placeholder.markdown(f"<p style='font-size:6px;'>{generated_text}</p>", unsafe_allow_html=True)
+        # text_placeholder.markdown(f"<p style='font-size:6px;'>{generated_text}</p>", unsafe_allow_html=True)
+        text_placeholder.markdown(
+            f"<p style='font-size:6px;'>{generated_text}</p>",
+            unsafe_allow_html=True
+        )
         time.sleep(0.0001) 
 
     return generated_text, first_token_time, elapsed_time, tokens_per_sec
