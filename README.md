@@ -9,6 +9,7 @@
 [![Keras Version](https://img.shields.io/badge/Keras-2.x-red)](https://keras.io/)
 
 
+
 # VISH - Versatile Interpretive Syntax Handler
 I've coded a **Poetic GPT**, showcasing my mastery of multihead attention transformers. This project highlights my commitment to advanced natural language processing, utilizing innovative techniques for refined and creative poetic text generation.
 - **Versatility**
@@ -20,7 +21,10 @@ The model excels at managing and manipulating the syntactic structure of languag
 * **Handler**  
 It is equipped with the capability to handle linguistic data, suggesting proficiency in processing and managing syntactic elements efficiently.
 
-https://medium.com/@sciencely98/unraveling-the-power-of-attention-a-dive-into-transformer-architecture-eb6594ed77a3
+capability to interpret tokens : [Test yourself](https://vishgpt.streamlit.app)
+
+Medium Blog : [Dare u to click](https://medium.com/@sciencely98/unraveling-the-power-of-attention-a-dive-into-transformer-architecture-eb6594ed77a3)
+
 
 
 > The datasets I currently possess are insufficient, and the processing capacity is limited. Consequently, my transformer struggles to grasp the Sense + Tense concept. I believe a substantial increase in the volume of data is essential to train a model effectively, allowing it to discern patterns inherent in language grammar.
